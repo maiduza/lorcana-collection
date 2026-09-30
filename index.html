@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lorcana Collection">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Lorcana Collection</title>
+<style>
+:root{--bg:#0b1020;--card:#151d32;--card2:#1b2640;--text:#f7f8fc;--muted:#a9b2c7;--accent:#7c5cff;--green:#36d399;--pink:#ff6b9d;--line:#29334d}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#0b1020,#111827);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;min-height:100vh}
+header{padding:calc(env(safe-area-inset-top) + 18px) 18px 14px;position:sticky;top:0;background:rgba(11,16,32,.92);backdrop-filter:blur(18px);z-index:5}
+h1{font-size:30px;margin:0 0 4px}.sub{color:var(--muted);font-size:14px}.wrap{padding:8px 16px 100px;max-width:900px;margin:auto}
+.hero{background:linear-gradient(135deg,#5b43d6,#9b5cff);border-radius:24px;padding:20px;margin:10px 0 16px;box-shadow:0 14px 40px #0005}
+.hero .percent{font-size:44px;font-weight:800;margin:4px 0}.progress{height:9px;background:#ffffff35;border-radius:20px;overflow:hidden}.progress>i{display:block;height:100%;background:white;border-radius:20px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat,.set,.card{background:var(--card);border:1px solid var(--line);border-radius:18px}.stat{padding:15px}.stat b{font-size:25px;display:block}.stat span{font-size:13px;color:var(--muted)}
+.section{margin-top:22px}.section h2{font-size:19px;margin:0 0 10px}
+.set{padding:15px;margin-bottom:10px;display:flex;align-items:center;gap:12px}.set .icon{width:45px;height:45px;border-radius:13px;background:var(--card2);display:grid;place-items:center;font-size:21px}.set main{flex:1}.set small{color:var(--muted)}.chev{color:var(--muted)}
+input,select{width:100%;padding:13px 14px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:16px;margin-bottom:10px}
+.filters{display:flex;gap:8px;overflow:auto;padding-bottom:3px}.pill{white-space:nowrap;padding:9px 13px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted)}.pill.active{background:var(--accent);color:white;border-color:var(--accent)}
+.card{padding:12px;display:flex;gap:12px;align-items:center;margin-bottom:9px}.thumb{width:54px;height:74px;border-radius:9px;background:linear-gradient(135deg,#303b59,#1b2440);display:grid;place-items:center;font-size:22px}.card main{flex:1}.card b{display:block}.meta{font-size:12px;color:var(--muted);margin-top:4px}.badge{font-size:11px;padding:5px 8px;border-radius:999px;background:#263453;color:#cbd5f1}.owned{background:#153f34;color:#67e8b5}.wanted{background:#49233a;color:#ff9abb}
+nav{position:fixed;bottom:0;left:0;right:0;background:rgba(12,17,31,.96);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:8px max(10px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(4,1fr);z-index:10}nav button{background:none;border:0;color:var(--muted);font-size:11px;padding:5px}nav button b{display:block;font-size:22px;margin-bottom:2px}nav button.active{color:white}
+button.primary{width:100%;padding:14px;border:0;border-radius:15px;background:var(--accent);color:white;font-weight:700;font-size:16px}.back{border:0;background:none;color:#bdaeff;font-size:15px;padding:0 0 14px}
+.detail{text-align:center}.bigcard{height:340px;border-radius:22px;background:linear-gradient(135deg,#303b59,#171e31);display:grid;place-items:center;font-size:60px;margin-bottom:15px}.row{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--line)}.row span{color:var(--muted)}
+.modal{position:fixed;inset:0;background:#0009;display:grid;align-items:end;z-index:20}.sheet{background:#111827;border-radius:24px 24px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow:auto}.hidden{display:none!important}
+.empty{text-align:center;color:var(--muted);padding:40px 10px}
+</style>
+</head>
+<body>
+<header><h1 id="title">Lorcana Collection</h1><div class="sub" id="subtitle">Ta collection, directement sur ton iPhone</div></header>
+<div class="wrap" id="app"></div>
+
+<nav>
+<button data-tab="home" class="active"><b>⌂</b>Accueil</button>
+<button data-tab="collection"><b>▦</b>Collection</button>
+<button data-tab="wishlist"><b>♡</b>Wishlist</button>
+<button data-tab="stats"><b>◔</b>Stats</button>
+</nav>
+
+<div id="modal" class="modal hidden"><div class="sheet">
+<div style="display:flex;justify-content:space-between;align-items:center"><h2 id="modalTitle">Carte</h2><button id="closeModal" class="back">Fermer</button></div>
+<div id="modalBody"></div>
+</div></div>
+
+<script>
+const demo=[
+["TFC-159","Stitch - Rock Star","The First Chapter","159/204","Super Rare","Stitch"],
+["TFC-042","Elsa - Spirit of Winter","The First Chapter","042/204","Legendary","Elsa"],
+["TFC-074","Mickey Mouse - Brave Little Tailor","The First Chapter","074/204","Enchanted","Mickey Mouse"],
+["ROF-123","Simba - Returned King","Rise of the Floodborn","123/204","Rare","Simba"],
+["UR-188","Ursula - Deceiver","Ursula's Return","188/204","Legendary","Ursula"],
+["AI-101","Merlin - Shapeshifter","Archazia's Island","101/207","Super Rare","Merlin"]
+].map(x=>({id:x[0],name:x[1],set:x[2],number:x[3],rarity:x[4],character:x[5]}));
+let state=JSON.parse(localStorage.getItem("lorcana-v1")||"null")||{entries:{},tab:"home"};
+function save(){localStorage.setItem("lorcana-v1",JSON.stringify(state))}
+function entry(id){return state.entries[id]||{owned:false,qty:0,wanted:false,language:"English",variant:"Normal",condition:"NM",price:0}}
+function setEntry(id,patch){state.entries[id]={...entry(id),...patch};save();render()}
+function pct(){let owned=demo.filter(c=>entry(c.id).owned).length;return Math.round(owned/demo.length*100)}
+function nav(tab){state.tab=tab;save();document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));render()}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>nav(b.dataset.tab));
+
+function render(){let tab=state.tab||"home";document.getElementById("title").textContent=tab==="home"?"Lorcana Collection":tab==="collection"?"Ma collection":tab==="wishlist"?"Wishlist":"Statistiques";document.getElementById("subtitle").textContent=tab==="home"?"Ta collection, directement sur ton iPhone":"V1 — sauvegarde locale";let el=document.getElementById("app"); if(tab==="home")el.innerHTML=home();if(tab==="collection")el.innerHTML=collection();if(tab==="wishlist")el.innerHTML=wishlist();if(tab==="stats")el.innerHTML=stats();wire()}
+function home(){let p=pct(), owned=demo.filter(c=>entry(c.id).owned).length, wanted=demo.filter(c=>entry(c.id).wanted).length;let sets=[...new Set(demo.map(c=>c.set))];return `<div class="hero"><div>PROGRESSION GLOBALE</div><div class="percent">${p}%</div><div class="sub" style="color:#fff9">${owned} cartes possédées sur ${demo.length}</div><div class="progress"><i style="width:${p}%"></i></div></div><div class="grid"><div class="stat"><b>${demo.length}</b><span>Cartes cataloguées</span></div><div class="stat"><b>${owned}</b><span>Possédées</span></div><div class="stat"><b>${wanted}</b><span>Wishlist</span></div><div class="stat"><b>${sets.length}</b><span>Extensions</span></div></div><div class="section"><h2>Extensions</h2>${sets.map(set=>setBlock(set)).join("")}</div>`}
+function setBlock(set){let a=demo.filter(c=>c.set===set),o=a.filter(c=>entry(c.id).owned).length,p=a.length?Math.round(o/a.length*100):0;return `<div class="set" onclick="showSet('${esc(set)}')"><div class="icon">🃏</div><main><b>${esc(set)}</b><small>${o}/${a.length} cartes • ${p}%</small></main><span class="chev">›</span></div>`}
+function collection(){return `<input id="search" placeholder="🔎 Nom, numéro, extension…"><div class="filters"><button class="pill active" data-filter="all">Toutes</button><button class="pill" data-filter="owned">Possédées</button><button class="pill" data-filter="wanted">Wishlist</button></div><div id="cards">${cardList(demo)}</div>`}
+function cardList(list){return list.length?list.map(cardHTML).join(""):`<div class="empty">Aucune carte trouvée.</div>`}
+function cardHTML(c){let e=entry(c.id);return `<div class="card" onclick="showCard('${c.id}')"><div class="thumb">🃏</div><main><b>${esc(c.name)}</b><div class="meta">${esc(c.set)} • ${c.number}</div><div style="margin-top:6px"><span class="badge">${esc(c.rarity)}</span> ${e.owned?'<span class="badge owned">✓ Possédée ×'+e.qty+'</span>':''} ${e.wanted?'<span class="badge wanted">♡ Wishlist</span>':''}</div></main></div>`}
+function wishlist(){let a=demo.filter(c=>entry(c.id).wanted);return `<div class="section"><h2>${a.length} carte${a.length>1?"s":""} recherchée${a.length>1?"s":""}</h2>${cardList(a)}</div>`}
+function stats(){let owned=demo.filter(c=>entry(c.id).owned).length,wanted=demo.filter(c=>entry(c.id).wanted).length,variants=Object.values(state.entries).length;return `<div class="hero"><div>COLLECTION</div><div class="percent">${pct()}%</div><div class="sub" style="color:#fff9">Progression de la V1</div><div class="progress"><i style="width:${pct()}%"></i></div></div><div class="grid"><div class="stat"><b>${owned}</b><span>Possédées</span></div><div class="stat"><b>${demo.length-owned}</b><span>Manquantes</span></div><div class="stat"><b>${wanted}</b><span>Wishlist</span></div><div class="stat"><b>${variants}</b><span>Variantes suivies</span></div></div><div class="section"><h2>Par extension</h2>${[...new Set(demo.map(c=>c.set))].map(set=>setBlock(set)).join("")}</div>`}
+function showCard(id){let c=demo.find(x=>x.id===id),e=entry(id);openModal(c.name,`<div class="detail"><div class="bigcard">🃏</div><div class="meta">${esc(c.set)} • ${c.number}</div></div><div class="row"><span>Rareté</span><b>${esc(c.rarity)}</b></div><div class="row"><span>Langue</span><b>${esc(e.language)}</b></div><div class="row"><span>Variante</span><b>${esc(e.variant)}</b></div><div class="row"><span>État</span><b>${esc(e.condition)}</b></div><div style="margin-top:16px"><button class="primary" onclick="editCard('${id}')">Modifier ma collection</button></div>`)}
+function editCard(id){let c=demo.find(x=>x.id===id),e=entry(id);openModal("Ma collection",`<p><b>${esc(c.name)}</b></p><label>Langue<select id="lang"><option>English</option><option>French</option><option>German</option><option>Italian</option><option>Spanish</option><option>Japanese</option><option>Portuguese</option></select></label><label>Variante<select id="variant"><option>Normal</option><option>Foil</option><option>Promo</option><option>Enchanted</option><option>Prize</option><option>Championship</option><option>D23</option></select></label><label>Quantité<input id="qty" type="number" min="0" max="99" value="${e.qty}"></label><label>État<select id="condition"><option>NM</option><option>LP</option><option>MP</option><option>HP</option></select></label><p><label><input id="owned" type="checkbox" ${e.owned?"checked":""}> Possédée</label></p><p><label><input id="wanted" type="checkbox" ${e.wanted?"checked":""}> Wishlist</label></p><button class="primary" onclick="saveEdit('${id}')">Enregistrer</button>`)}
+function saveEdit(id){setEntry(id,{language:document.getElementById("lang").value,variant:document.getElementById("variant").value,qty:+document.getElementById("qty").value,condition:document.getElementById("condition").value,owned:document.getElementById("owned").checked,wanted:document.getElementById("wanted").checked});closeModal()}
+function showSet(set){state.tab="collection";render();setTimeout(()=>{let s=document.getElementById("search");s.value=set;s.dispatchEvent(new Event("input"))},20)}
+function openModal(title,body){document.getElementById("modalTitle").textContent=title;document.getElementById("modalBody").innerHTML=body;document.getElementById("modal").classList.remove("hidden")}
+function closeModal(){document.getElementById("modal").classList.add("hidden")}
+document.getElementById("closeModal").onclick=closeModal;
+function wire(){let search=document.getElementById("search");if(search){search.oninput=()=>{let q=search.value.toLowerCase(),active=document.querySelector(".pill.active").dataset.filter;let a=demo.filter(c=>(c.name+" "+c.set+" "+c.number).toLowerCase().includes(q)).filter(c=>active==="all"||(active==="owned"&&entry(c.id).owned)||(active==="wanted"&&entry(c.id).wanted));document.getElementById("cards").innerHTML=cardList(a)};document.querySelectorAll(".pill").forEach(b=>b.onclick=()=>{document.querySelectorAll(".pill").forEach(x=>x.classList.remove("active"));b.classList.add("active");search.dispatchEvent(new Event("input"))})}}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+render();
+</script>
+</body>
+</html>
+<script>if("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js");</script>
