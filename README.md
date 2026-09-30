@@ -1,1 +1,2 @@
 # lorcana-collection
+    Cloudflare deployment
